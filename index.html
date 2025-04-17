@@ -1,63 +1,59 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Paddle Payment Link</title>
-    <script>
-      // Fungsi untuk mengambil paymentLink dari backend
-      async function getPaymentLink() {
-  try {
-    const response = await fetch('/api/payment', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: 'JohnDoe',
-        email: 'johndoe@example.com',
-        package: 'basic',
-      }),
-    });
+    <title>Paddle Overlay Checkout</title>
+    <!-- Include Paddle.js -->
+    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+    <script type="text/javascript">
+      // Set environment to sandbox
+      Paddle.Environment.set("sandbox");
 
-    // Log respons lengkap
-    const rawResponse = await response.text();
-    console.log('Raw response from backend:', rawResponse);
+      // Initialize Paddle.js with a client-side token
+      Paddle.Initialize({
+        token: "test_7d279f61a3499fed520f7cd8c08", // Ganti dengan client-side token Anda
+      });
 
-    // Cek apakah respons OK
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
+      // Daftar item untuk checkout
+      let itemsList = [
+        {
+          priceId: "pri_01gsz8ntc6z7npqqp6j4ys0w1w", // Ganti dengan ID harga produk Anda
+          quantity: 1,
+        },
+      ];
 
-    // Parse respons sebagai JSON
-    const data = JSON.parse(rawResponse); // Gunakan JSON.parse secara eksplisit
-    if (!data.paymentLink) {
-      throw new Error('Payment link not found in response.');
-    }
+      // Fungsi untuk membuka overlay checkout
+      function openCheckout(items) {
+        Paddle.Checkout.open({
+          items: items,
+        });
+      }
 
-    // Tampilkan paymentLink sebagai tombol
-    const paymentLink = data.paymentLink;
-    document.getElementById('payment-link-container').innerHTML = `
-      <a href="${paymentLink}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
-        Pay Now
-      </a>
-    `;
-  } catch (error) {
-    console.error('Error fetching payment link:', error.message);
-    document.getElementById('payment-link-container').innerHTML = `
-      <p style="color: red;">Error: ${error.message}</p>
-    `;
-  }
-}
+      // Prefill customer information (optional)
+      let customerInfo = {
+        email: "customer@example.com", // Ganti dengan email pelanggan
+        address: {
+          country: "US", // Ganti dengan kode negara ISO
+        },
+      };
 
-      // Panggil fungsi saat halaman dimuat
-      window.onload = getPaymentLink;
+      // Fungsi untuk membuka checkout dengan informasi pelanggan prefilled
+      function openCheckoutWithCustomer(items, customer) {
+        Paddle.Checkout.open({
+          items: items,
+          customer: customer,
+        });
+      }
     </script>
   </head>
   <body>
-    <h1>Paddle Payment Link</h1>
+    <h1>Paddle Overlay Checkout</h1>
 
-    <!-- Container untuk menampilkan tombol pembayaran -->
-    <div id="payment-link-container">
-      Loading payment link...
-    </div>
+    <!-- Tombol untuk membuka overlay checkout -->
+    <button onclick="openCheckout(itemsList)">Sign Up Now</button>
+
+    <!-- Tombol untuk membuka overlay checkout dengan informasi pelanggan prefilled -->
+    <button onclick="openCheckoutWithCustomer(itemsList, customerInfo)">
+      Sign Up with Prefilled Info
+    </button>
   </body>
 </html>
