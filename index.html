@@ -5,19 +5,19 @@
     <script>
       window.onload = function () {
         const urlParams = new URLSearchParams(window.location.search);
-        const paymentLink = urlParams.get('link');
+        const txn = urlParams.get('_ptxn');
 
-        if (paymentLink) {
-          // Redirect langsung ke checkout URL dari Paddle v2
-          window.location.href = decodeURIComponent(paymentLink);
+        if (txn) {
+          const link = `https://sandbox-checkout.paddle.com/checkout/${txn}`;
+          window.location.href = link;
         } else {
-          document.body.innerHTML = "<h2>Missing or invalid payment link.</h2>";
+          document.body.innerHTML = "<h2>Transaction ID is missing.</h2>";
         }
       };
     </script>
   </head>
   <body>
-    <h1>Loading checkout...</h1>
+    <h1>Redirecting to Paddle checkout...</h1>
   </body>
 </html>
 
