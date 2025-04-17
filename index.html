@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://cdn.paddle.com/paddle/paddle.js"></script>
+    <script>
+      window.onload = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const txn = urlParams.get('_ptxn');
+
+        if (txn) {
+          // Ganti dengan Vendor ID kamu di sandbox
+          Paddle.Environment.set('sandbox');
+          Paddle.Setup({ vendor: YOUR_VENDOR_ID });
+          Paddle.Checkout.open({ transactionId: txn });
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <h1>Loading checkout...</h1>
+  </body>
+</html>
