@@ -1,155 +1,53 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Paddle Inline Checkout</title>
-    <!-- Include Paddle.js -->
-    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
-    <script type="text/javascript">
-      // Set environment to sandbox
-      Paddle.Environment.set("sandbox");
+    <title>Paddle Payment Link</title>
+    <script>
+      // Fungsi untuk mengambil paymentLink dari backend
+      async function getPaymentLink() {
+        try {
+          const response = await fetch('/api/payment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              username: 'JohnDoe', // Ganti dengan nama pengguna
+              email: 'johndoe@example.com', // Ganti dengan email pengguna
+              package: 'basic', // Ganti dengan paket yang dipilih
+            }),
+          });
 
-      // Initialize Paddle.js with a client-side token
-      Paddle.Initialize({
-        token: "test_2a45300afdce7ad73fb4da1b9bb", // Ganti dengan client-side token Anda
-        checkout: {
-          settings: {
-            displayMode: "inline", // Menggunakan inline checkout
-            frameTarget: "checkout-container", // ID elemen tempat checkout ditampilkan
-            frameInitialHeight: "450", // Tinggi awal frame
-            frameStyle: "width: 100%; min-width: 312px; background-color: transparent; border: none;" // Gaya CSS untuk frame
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.message || 'Failed to get payment link.');
           }
+
+          // Tampilkan paymentLink sebagai tombol
+          const paymentLink = data.paymentLink;
+          document.getElementById('payment-link-container').innerHTML = `
+            <a href="${paymentLink}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+              Pay Now
+            </a>
+          `;
+        } catch (error) {
+          console.error('Error fetching payment link:', error.message);
+          document.getElementById('payment-link-container').innerHTML = `
+            <p style="color: red;">Error: ${error.message}</p>
+          `;
         }
-      });
-
-      // Daftar item untuk checkout
-      let monthItemsList = [
-        {
-          priceId: "pri_01gsz8x8sawmvhz1pv30nge1ke", // Ganti dengan ID harga produk Anda
-          quantity: 1
-        }
-      ];
-
-      // Fungsi untuk membuka checkout
-      function openCheckout(items) {
-        Paddle.Checkout.open({
-          items: items
-        });
       }
 
-      // Fungsi untuk memperbarui tabel barang dan total
-      function updateTable(event) {
-        if (!event.name) return;
-
-        console.log(event); // Debugging
-
-        let items = event.data.items;
-        updateItemsTable(items);
-
-        let totals = event.data.totals;
-        let recurringTotals = event.data.recurring_totals;
-        updateSummaryTable(totals, recurringTotals);
-      }
-
-      // Fungsi untuk memperbarui tabel barang
-      function updateItemsTable(items) {
-        const itemsTableBody = document.querySelector(".items-table tbody");
-        itemsTableBody.innerHTML = "";
-
-        items.forEach((item) => {
-          const newRow = createTableRow(
-            item.product.name,
-            item.price_name,
-            item.quantity,
-            item.totals.subtotal
-          );
-          itemsTableBody.appendChild(newRow);
-        });
-      }
-
-      // Fungsi untuk membuat baris tabel barang
-      function createTableRow(productName, priceName, quantity, total) {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${productName}</td>
-          <td>${priceName}</td>
-          <td>${quantity}</td>
-          <td>${total.toFixed(2)}</td>
-        `;
-        return row;
-      }
-
-      // Fungsi untuk memperbarui tabel total
-      function updateSummaryTable(totals, recurringTotals) {
-        document.getElementById("oneTimeTotal").textContent = (
-          totals.subtotal - recurringTotals.subtotal
-        ).toFixed(2);
-        document.getElementById("recurringTotal").textContent =
-          recurringTotals.subtotal.toFixed(2);
-        document.getElementById("discountTotal").textContent =
-          totals.discount.toFixed(2);
-        document.getElementById("taxTotal").textContent =
-          totals.tax.toFixed(2);
-        document.getElementById("totalToday").textContent =
-          totals.total.toFixed(2);
-      }
-
-      // Set event callback untuk memperbarui tabel saat checkout dimuat
-      Paddle.Events.on("checkout.loaded", updateTable);
+      // Panggil fungsi saat halaman dimuat
+      window.onload = getPaymentLink;
     </script>
   </head>
-  <body onLoad="openCheckout(monthItemsList)">
-    <h1>Paddle Inline Checkout</h1>
+  <body>
+    <h1>Paddle Payment Link</h1>
 
-    <!-- Container untuk checkout -->
-    <div class="page-container">
-      <div class="grid">
-        <div id="checkout-container"></div>
-        <div>
-          <h3>Items</h3>
-          <table class="items-table">
-            <thead>
-              <tr>
-                <th>Product Name</th>
-                <th>Price Name</th>
-                <th>Quantity</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td></td>
-                <td></td>
-                <td>0</td>
-                <td>0.00</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <h3>Totals</h3>
-          <table>
-            <tr>
-              <td>One-Time Total:</td>
-              <td id="oneTimeTotal">0.00</td>
-            </tr>
-            <tr>
-              <td>Recurring Total:</td>
-              <td id="recurringTotal">0.00</td>
-            </tr>
-            <tr>
-              <td>Discount:</td>
-              <td id="discountTotal">0.00</td>
-            </tr>
-            <tr>
-              <td>Tax:</td>
-              <td id="taxTotal">0.00</td>
-            </tr>
-            <tr>
-              <td>Total Today:</td>
-              <td id="totalToday">0.00</td>
-            </tr>
-          </table>
-        </div>
-      </div>
+    <!-- Container untuk menampilkan tombol pembayaran -->
+    <div id="payment-link-container">
+      Loading payment link...
     </div>
   </body>
 </html>
