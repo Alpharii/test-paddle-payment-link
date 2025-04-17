@@ -5,38 +5,48 @@
     <script>
       // Fungsi untuk mengambil paymentLink dari backend
       async function getPaymentLink() {
-        try {
-          const response = await fetch('/api/payment', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              username: 'JohnDoe', // Ganti dengan nama pengguna
-              email: 'johndoe@example.com', // Ganti dengan email pengguna
-              package: 'basic', // Ganti dengan paket yang dipilih
-            }),
-          });
+  try {
+    const response = await fetch('/api/payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: 'JohnDoe',
+        email: 'johndoe@example.com',
+        package: 'basic',
+      }),
+    });
 
-          const data = await response.json();
-          if (!response.ok) {
-            throw new Error(data.message || 'Failed to get payment link.');
-          }
+    // Log respons lengkap
+    const rawResponse = await response.text();
+    console.log('Raw response from backend:', rawResponse);
 
-          // Tampilkan paymentLink sebagai tombol
-          const paymentLink = data.paymentLink;
-          document.getElementById('payment-link-container').innerHTML = `
-            <a href="${paymentLink}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
-              Pay Now
-            </a>
-          `;
-        } catch (error) {
-          console.error('Error fetching payment link:', error.message);
-          document.getElementById('payment-link-container').innerHTML = `
-            <p style="color: red;">Error: ${error.message}</p>
-          `;
-        }
-      }
+    // Cek apakah respons OK
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    // Parse respons sebagai JSON
+    const data = JSON.parse(rawResponse); // Gunakan JSON.parse secara eksplisit
+    if (!data.paymentLink) {
+      throw new Error('Payment link not found in response.');
+    }
+
+    // Tampilkan paymentLink sebagai tombol
+    const paymentLink = data.paymentLink;
+    document.getElementById('payment-link-container').innerHTML = `
+      <a href="${paymentLink}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+        Pay Now
+      </a>
+    `;
+  } catch (error) {
+    console.error('Error fetching payment link:', error.message);
+    document.getElementById('payment-link-container').innerHTML = `
+      <p style="color: red;">Error: ${error.message}</p>
+    `;
+  }
+}
 
       // Panggil fungsi saat halaman dimuat
       window.onload = getPaymentLink;
