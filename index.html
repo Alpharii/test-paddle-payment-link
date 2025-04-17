@@ -4,14 +4,24 @@
     <title>Redirecting to Paddle...</title>
     <script>
       window.onload = function () {
-        const urlParams = new URLSearchParams(window.location.search);
-        const txn = urlParams.get('_ptxn');
+        try {
+          // Mengambil parameter '_ptxn' dari URL
+          const urlParams = new URLSearchParams(window.location.search);
+          const txn = urlParams.get('_ptxn');
 
-        if (txn) {
-          const link = `https://sandbox-checkout.paddle.com/checkout/${txn}`;
-          window.location.href = link;
-        } else {
-          document.body.innerHTML = "<h2>Transaction ID is missing.</h2>";
+          if (txn) {
+            // Redirect ke halaman checkout Paddle
+            const link = `https://sandbox-checkout.paddle.com/checkout/${txn}`;
+            console.log(`Redirecting to: ${link}`); // Debugging
+            window.location.href = link;
+          } else {
+            // Menampilkan pesan jika parameter '_ptxn' tidak ditemukan
+            document.body.innerHTML = "<h2>Transaction ID is missing. Please provide a valid '_ptxn' parameter in the URL.</h2>";
+          }
+        } catch (error) {
+          // Menangani kesalahan umum
+          console.error("An error occurred:", error);
+          document.body.innerHTML = `<h2>An error occurred while processing your request. Please try again later.</h2><p>Error details: ${error.message}</p>`;
         }
       };
     </script>
@@ -20,4 +30,3 @@
     <h1>Redirecting to Paddle checkout...</h1>
   </body>
 </html>
-
