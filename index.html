@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="https://cdn.paddle.com/paddle/paddle.js"></script>
+    <title>Redirecting to Paddle...</title>
     <script>
       window.onload = function () {
         const urlParams = new URLSearchParams(window.location.search);
-        const txn = urlParams.get('_ptxn');
+        const paymentLink = urlParams.get('link');
 
-        if (txn) {
-          // Ganti dengan Vendor ID kamu di sandbox
-          Paddle.Environment.set('sandbox');
-          Paddle.Setup({ vendor: 29844 });
-          Paddle.Checkout.open({ transactionId: txn });
+        if (paymentLink) {
+          // Redirect langsung ke checkout URL dari Paddle v2
+          window.location.href = decodeURIComponent(paymentLink);
+        } else {
+          document.body.innerHTML = "<h2>Missing or invalid payment link.</h2>";
         }
       };
     </script>
@@ -20,3 +20,4 @@
     <h1>Loading checkout...</h1>
   </body>
 </html>
+
